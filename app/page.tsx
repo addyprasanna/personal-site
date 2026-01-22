@@ -96,6 +96,38 @@ export default function Home() {
         </div>
      </section>
 
+      {/* Experiences */}
+      <section className="mt-12">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-neutral-500">
+          Experience
+        </h2>
+
+        <div className="mt-6 space-y-3">
+          <HoverBar
+            logoSrc="/netjets.jpeg" // or /netjets.png later
+            title="NetJets"
+            subtitle="Data Analytics / Engineering Intern — Snowflake audit dashboard + usage transparency"
+          rightText="Summer 2024"
+            href="/projects"
+          />
+
+          <HoverBar
+            logoSrc="/block-o.svg" // placeholder for now
+            title="Ohio State Athletics"
+            subtitle="Analytics Intern — Ticket traffic dashboard + stakeholder reporting"
+            rightText="Summer 2023"
+            href="/projects"
+          />
+
+          <HoverBar
+            logoSrc="/kalypso.jpeg" // placeholder for now
+            title="Kalypso (Rockwell Automation)"
+            subtitle="Data Science Analyst Intern — Manufacturing ML feature pipeline"
+            rightText="Summer 2025"
+            href="/projects"
+          />
+        </div>
+      </section>
 
 
       {/* Social links */}
