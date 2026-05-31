@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 
 const LINES = [
-  { type: "cmd",    text: "init operational-intelligence --env production" },
-  { type: "log",    text: "scanning enterprise data sources..." },
-  { type: "ok",     text: "connected: 3 sources · 847 workflow nodes mapped" },
-  { type: "log",    text: "normalizing schema: Excel chaos → structured data" },
-  { type: "ok",     text: "AI analyst layer online  [Amber v1.2.0]" },
-  { type: "ok",     text: "dashboard sync: 47 KPIs tracked  [Magellan]" },
-  { type: "ok",     text: "customer deployment: construction-ops-prod ✓" },
+  { type: "cmd", text: "init operational-intelligence --env production" },
+  { type: "log", text: "scanning enterprise data sources..." },
+  { type: "ok", text: "connected: 3 sources · 847 workflow nodes mapped" },
+  { type: "log", text: "normalizing schema: Excel chaos → structured data" },
+  { type: "ok", text: "AI analyst layer online  [Amber v1.2.0]" },
+  { type: "ok", text: "dashboard sync: 47 KPIs tracked  [Magellan]" },
+  { type: "ok", text: "customer deployment: construction-ops-prod ✓" },
   { type: "status", text: "all systems operational" },
 ];
 
@@ -32,21 +31,19 @@ export function SystemLog() {
 
   return (
     <div ref={ref} className="mt-8 mb-2">
-      <div className="rounded-xl border border-[#171717] bg-[#060606] overflow-hidden">
-        {/* chrome bar */}
-        <div className="flex items-center gap-2 border-b border-[#111] bg-[#0a0a0a] px-4 py-2.5">
+      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[#040406]">
+        <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-4 py-2.5">
           <div className="flex gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="h-2 w-2 rounded-full bg-[#1e1e1e]" />
-            ))}
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
           </div>
-          <span className="ml-2 font-mono text-[10px] text-[#252525] tracking-wider">
+          <span className="ml-2 font-mono text-[10px] tracking-wider text-[var(--color-text-subtle)]">
             system.log — kaya-ops-prod
           </span>
         </div>
 
-        {/* log lines */}
-        <div className="px-5 py-4 font-mono text-[11px] space-y-1.5 min-h-[148px]">
+        <div className="min-h-[148px] space-y-1.5 px-5 py-4 font-mono text-[11px]">
           {LINES.slice(0, count).map((line, i) => (
             <motion.div
               key={i}
@@ -57,44 +54,52 @@ export function SystemLog() {
             >
               {line.type === "cmd" && (
                 <>
-                  <span className="shrink-0 text-[#22d3ee]">$</span>
-                  <span className="text-[#666]">{line.text}</span>
+                  <span className="shrink-0 text-[var(--color-accent)]">$</span>
+                  <span className="text-[var(--color-text-muted)]">
+                    {line.text}
+                  </span>
                 </>
               )}
               {line.type === "log" && (
                 <>
-                  <span className="shrink-0 text-[#2a2a2a]">▶</span>
-                  <span className="text-[#363636]">{line.text}</span>
+                  <span className="shrink-0 text-[var(--color-text-subtle)]">
+                    ▶
+                  </span>
+                  <span className="text-[var(--color-text-subtle)]">
+                    {line.text}
+                  </span>
                 </>
               )}
               {line.type === "ok" && (
                 <>
-                  <span className="shrink-0 text-[#16a34a]">✓</span>
-                  <span className="text-[#4a4a4a]">{line.text}</span>
+                  <span className="shrink-0 text-[var(--color-accent-green)]">
+                    ✓
+                  </span>
+                  <span className="text-[var(--color-text-secondary)]">
+                    {line.text}
+                  </span>
                 </>
               )}
               {line.type === "status" && (
                 <>
-                  <span className="shrink-0 text-[#22d3ee]">◉</span>
-                  <span className="text-[#22d3ee]">{line.text}</span>
+                  <span className="shrink-0 text-[var(--color-accent)]">◉</span>
+                  <span className="text-[var(--color-accent)]">{line.text}</span>
                 </>
               )}
             </motion.div>
           ))}
 
-          {/* blinking cursor */}
           {done && (
             <div className="flex gap-3">
-              <span className="text-[#22d3ee]">$</span>
-              <span className="text-[#333] animate-pulse">█</span>
+              <span className="text-[var(--color-accent)]">$</span>
+              <span className="animate-pulse text-[var(--color-text-subtle)]">
+                █
+              </span>
             </div>
           )}
 
-          {/* placeholder lines to hold height before log starts */}
           {!isInView && (
-            <div className="text-[#1a1a1a]">
-              $ _
-            </div>
+            <div className="text-[var(--color-text-subtle)]">$ _</div>
           )}
         </div>
       </div>

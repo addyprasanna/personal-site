@@ -35,11 +35,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#080808] text-[#e2e2e2] min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased bg-[var(--color-bg)] text-[var(--color-text)]`}
       >
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <ScrollProgress />
         <Navbar />
-        {children}
+        <div id="main-content">{children}</div>
         <CommandPalette />
         <EasterEggs />
       </body>

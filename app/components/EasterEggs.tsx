@@ -9,14 +9,17 @@ const ease = [0.21, 0.47, 0.32, 0.98] as const;
 function CountUp({ to, duration = 700 }: { to: number; duration?: number }) {
   const [n, setN] = useState(0);
   useEffect(() => {
-    setN(0);
     const steps = 40;
     const inc = to / steps;
     let cur = 0;
     const id = setInterval(() => {
       cur += inc;
-      if (cur >= to) { setN(to); clearInterval(id); }
-      else setN(Math.floor(cur));
+      if (cur >= to) {
+        setN(to);
+        clearInterval(id);
+      } else {
+        setN(Math.floor(cur));
+      }
     }, duration / steps);
     return () => clearInterval(id);
   }, [to, duration]);
@@ -44,7 +47,7 @@ function KayaDashboard({ onClose }: { onClose: () => void }) {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96, y: -8 }}
       transition={{ duration: 0.22, ease }}
-      className="fixed left-1/2 top-[12vh] z-[300] w-full max-w-sm -translate-x-1/2 overflow-hidden rounded-xl border border-[#1e1e1e] bg-[#080808] shadow-[0_32px_96px_rgba(0,0,0,0.9)]"
+      className="fixed left-1/2 top-[12vh] z-[70] w-full max-w-sm -translate-x-1/2 overflow-hidden rounded-xl border border-[#1e1e1e] bg-[#080808] shadow-[0_32px_96px_rgba(0,0,0,0.9)]"
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#141414] bg-[#0a0a0a] px-4 py-3">
@@ -64,7 +67,7 @@ function KayaDashboard({ onClose }: { onClose: () => void }) {
             <span className="font-mono text-[11px] text-[#444]">{m.label}</span>
             <div className="flex items-baseline gap-1.5">
               <span className="font-mono text-sm text-[#c8c8c8]">
-                <CountUp to={m.value} />
+                <CountUp key={m.value} to={m.value} />
               </span>
               <span className="font-mono text-[10px] text-[#333]">{m.unit}</span>
             </div>
@@ -133,7 +136,7 @@ function FencingOverlay({ onClose }: { onClose: () => void }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-[300] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
@@ -154,7 +157,7 @@ function FencingOverlay({ onClose }: { onClose: () => void }) {
           Varsity Épée · 2022 — 2026
         </p>
         <p className="font-mono text-xs text-[#333] italic max-w-xs">
-          "The competitor&apos;s mindset doesn&apos;t stay on the strip."
+          &ldquo;The competitor&apos;s mindset doesn&apos;t stay on the strip.&rdquo;
         </p>
 
         <motion.div

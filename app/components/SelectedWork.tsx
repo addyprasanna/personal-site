@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FadeIn } from "./ui/FadeIn";
+import { SectionHeader } from "./ui/SectionHeader";
+import { Tag } from "./ui/Tag";
 
 const ease = [0.21, 0.47, 0.32, 0.98] as const;
 
@@ -16,6 +18,7 @@ type Project = {
   tags: string[];
   insight: string;
   decision: string;
+  featured?: boolean;
 };
 
 const projects: Project[] = [
@@ -31,6 +34,7 @@ const projects: Project[] = [
       "The estate had 400+ tables. Nobody knew which ones were actually used. Reverse-engineering usage from query logs was the right call — the org had no documentation worth trusting.",
     decision:
       "Built the refresh pipeline in Python over Snowflake's information_schema rather than pure SQL — edge cases in nested CTEs across the full schema wouldn't compose cleanly.",
+    featured: true,
   },
   {
     title: "Manufacturing ML Feature Pipeline",
@@ -80,86 +84,99 @@ export function SelectedWork() {
     setExpandedId((v) => (v === title ? null : title));
 
   return (
-    <section className="px-6 py-28 border-t border-[#111]">
-      <div className="mx-auto max-w-3xl">
-        <div className="flex items-end justify-between mb-10">
-          <FadeIn>
-            <div>
-              <span className="font-mono text-[11px] text-[#444] tracking-widest uppercase">
-                // selected work
-              </span>
-              <h2 className="mt-4 text-3xl font-light tracking-tight text-[#e2e2e2]">
-                Projects
-              </h2>
-            </div>
-          </FadeIn>
-          <FadeIn delay={0.05}>
+    <section className="section-padding border-t border-[var(--color-border)]">
+      <div className="container-main">
+        <SectionHeader
+          label="// selected work"
+          title="Projects"
+          action={
             <Link
               href="/projects"
-              className="text-xs text-[#444] hover:text-[#aaa] transition-colors duration-200 font-mono"
+              className="font-mono text-xs text-[var(--color-text-muted)] transition-colors duration-200 hover:text-[var(--color-accent)]"
             >
               all work →
             </Link>
-          </FadeIn>
-        </div>
+          }
+        />
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {projects.map((p, i) => {
             const expanded = expandedId === p.title;
+            const isFeatured = p.featured;
+
             return (
-              <FadeIn key={p.title} delay={i * 0.06}>
+              <FadeIn
+                key={p.title}
+                delay={i * 0.06}
+                className={isFeatured ? "md:col-span-2" : ""}
+              >
                 <motion.article
                   layout
                   onClick={() => toggle(p.title)}
-                  className={`group rounded-xl border bg-[#0d0d0d] p-6 cursor-pointer transition-colors duration-300 ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggle(p.title);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={expanded}
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2, ease }}
+                  className={`card-interactive glass glass-hover h-full rounded-2xl p-6 ${
                     expanded
-                      ? "border-[#262626] bg-[#0f0f0f]"
-                      : "border-[#171717] hover:border-[#222]"
-                  }`}
+                      ? "border-[var(--color-border-hover)] bg-[var(--color-bg-elevated)]"
+                      : ""
+                  } ${isFeatured ? "md:p-8" : ""}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-mono text-[10px] text-[#333] tracking-widest uppercase">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <span className="rounded-md bg-[var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[var(--color-text-subtle)]">
                           {p.category}
                         </span>
-                        <span className="text-[#2a2a2a]">·</span>
-                        <span className="font-mono text-[10px] text-[#333]">
+                        <span className="font-mono text-[10px] text-[var(--color-text-subtle)]">
                           {p.year}
                         </span>
+                        {isFeatured && (
+                          <span className="rounded-md border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/5 px-2 py-0.5 font-mono text-[10px] text-[var(--color-accent)]">
+                            featured
+                          </span>
+                        )}
                       </div>
-                      <h3 className="font-medium text-[#d8d8d8] leading-snug">
+                      <h3
+                        className={`font-medium leading-snug text-[var(--color-text)] ${isFeatured ? "text-lg" : "text-base"}`}
+                      >
                         {p.title}
                       </h3>
-                      <p className="text-xs text-[#555] mt-0.5">{p.org}</p>
+                      <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+                        {p.org}
+                      </p>
                     </div>
 
-                    {/* Expand chevron */}
                     <motion.span
                       animate={{ rotate: expanded ? 180 : 0 }}
                       transition={{ duration: 0.22, ease }}
-                      className="shrink-0 mt-0.5 font-mono text-xs text-[#2e2e2e] group-hover:text-[#444] transition-colors"
+                      className="mt-0.5 shrink-0 font-mono text-xs text-[var(--color-text-subtle)]"
+                      aria-hidden="true"
                     >
                       ↓
                     </motion.span>
                   </div>
 
-                  <p className="mt-4 text-sm text-[#5a5a5a] leading-relaxed">
+                  <p
+                    className={`mt-4 leading-relaxed text-[var(--color-text-secondary)] ${isFeatured ? "text-sm max-w-3xl" : "text-sm"}`}
+                  >
                     {p.description}
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-1.5">
                     {p.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="rounded px-2 py-0.5 text-[11px] font-mono text-[#444] bg-[#111] border border-[#1c1c1c]"
-                      >
-                        {t}
-                      </span>
+                      <Tag key={t}>{t}</Tag>
                     ))}
                   </div>
 
-                  {/* Expanded content */}
                   <AnimatePresence initial={false}>
                     {expanded && (
                       <motion.div
@@ -170,20 +187,20 @@ export function SelectedWork() {
                         transition={{ duration: 0.3, ease }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-5 pt-5 border-t border-[#191919] space-y-4">
+                        <div className="mt-5 space-y-4 border-t border-[var(--color-border)] pt-5">
                           <div>
-                            <p className="font-mono text-[10px] text-[#333] tracking-widest uppercase mb-2">
-                              // insight
+                            <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[var(--color-text-subtle)]">
+                              {"// insight"}
                             </p>
-                            <p className="text-sm text-[#555] leading-relaxed">
+                            <p className="text-sm leading-relaxed text-[var(--color-text-muted)]">
                               {p.insight}
                             </p>
                           </div>
                           <div>
-                            <p className="font-mono text-[10px] text-[#333] tracking-widest uppercase mb-2">
-                              // key decision
+                            <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[var(--color-text-subtle)]">
+                              {"// key decision"}
                             </p>
-                            <p className="text-sm text-[#4a4a4a] leading-relaxed">
+                            <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
                               {p.decision}
                             </p>
                           </div>
@@ -193,7 +210,7 @@ export function SelectedWork() {
                   </AnimatePresence>
 
                   {!expanded && (
-                    <p className="mt-3 font-mono text-[10px] text-[#252525] group-hover:text-[#333] transition-colors duration-200">
+                    <p className="mt-3 font-mono text-[10px] text-[var(--color-text-subtle)]">
                       click to expand →
                     </p>
                   )}

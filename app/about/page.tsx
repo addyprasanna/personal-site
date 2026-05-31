@@ -3,27 +3,24 @@ import { Footer } from "../components/Footer";
 export default function About() {
   return (
     <>
-      <main className="mx-auto max-w-3xl px-6 pb-0 pt-28">
+      <main className="container-main section-padding pb-0 pt-28">
         <header className="mb-14">
-          <span className="font-mono text-[11px] text-[#444] tracking-widest uppercase">
-            // about
-          </span>
-          <h1 className="mt-4 text-3xl font-light tracking-tight text-[#e2e2e2]">
+          <span className="section-label">{"// about"}</span>
+          <h1 className="mt-4 text-3xl font-light tracking-tight text-[var(--color-text)] md:text-4xl">
             Advaith Prasanna
           </h1>
         </header>
 
-        <div className="space-y-12 max-w-2xl">
-          {/* Bio */}
+        <div className="max-w-3xl space-y-12">
           <section>
-            <div className="space-y-4 text-sm text-[#666] leading-relaxed">
+            <div className="space-y-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
               <p>
                 I&apos;m a product engineer building AI-native operational
                 tooling at{" "}
-                <span className="text-[#aaa]">Kaya AI</span> — currently
-                focused on construction and supply chain. My work sits at the
-                intersection of data systems, applied AI, and customer-facing
-                product.
+                <span className="text-[var(--color-text)]">Kaya AI</span> —
+                currently focused on construction and supply chain. My work sits
+                at the intersection of data systems, applied AI, and
+                customer-facing product.
               </p>
               <p>
                 What I find most interesting isn&apos;t any single technology —
@@ -44,15 +41,12 @@ export default function About() {
             </div>
           </section>
 
-          {/* Athletics */}
-          <section className="border-t border-[#111] pt-10">
-            <span className="font-mono text-[11px] text-[#444] tracking-widest uppercase">
-              // athletics
-            </span>
-            <h2 className="mt-4 text-lg font-medium text-[#d0d0d0]">
+          <section className="border-t border-[var(--color-border)] pt-10">
+            <span className="section-label">{"// athletics"}</span>
+            <h2 className="mt-4 text-lg font-medium text-[var(--color-text)]">
               NCAA Division I Fencing
             </h2>
-            <p className="mt-3 text-sm text-[#555] leading-relaxed">
+            <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-muted)]">
               I fenced varsity for Ohio State — one of the country&apos;s top
               fencing programs. Four years of Division I competition gave me
               something no class or project could: experience operating under
@@ -63,12 +57,9 @@ export default function About() {
             </p>
           </section>
 
-          {/* What I think about */}
-          <section className="border-t border-[#111] pt-10">
-            <span className="font-mono text-[11px] text-[#444] tracking-widest uppercase">
-              // interests
-            </span>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <section className="border-t border-[var(--color-border)] pt-10">
+            <span className="section-label">{"// interests"}</span>
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[
                 {
                   label: "AI systems",
@@ -103,12 +94,12 @@ export default function About() {
               ].map(({ label, detail }) => (
                 <div
                   key={label}
-                  className="rounded-lg border border-[#171717] bg-[#0d0d0d] p-4"
+                  className="glass glass-hover rounded-2xl p-4"
                 >
-                  <p className="text-xs font-mono text-[#888] mb-1.5">
+                  <p className="mb-1.5 font-mono text-xs text-[var(--color-text-secondary)]">
                     {label}
                   </p>
-                  <p className="text-[11px] text-[#444] leading-relaxed">
+                  <p className="text-[11px] leading-relaxed text-[var(--color-text-muted)]">
                     {detail}
                   </p>
                 </div>
@@ -116,25 +107,22 @@ export default function About() {
             </div>
           </section>
 
-          {/* Education */}
-          <section className="border-t border-[#111] pt-10">
-            <span className="font-mono text-[11px] text-[#444] tracking-widest uppercase">
-              // education
-            </span>
-            <div className="mt-6 space-y-4">
-              <div>
-                <p className="text-sm text-[#c0c0c0]">
+          <section className="border-t border-[var(--color-border)] pt-10">
+            <span className="section-label">{"// education"}</span>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">
+                <p className="text-sm text-[var(--color-text)]">
                   B.S. Computer Science & Engineering — Artificial Intelligence
                 </p>
-                <p className="text-xs text-[#555] mt-1">
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
                   The Ohio State University · 2022–2026
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-[#c0c0c0]">
+              <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5">
+                <p className="text-sm text-[var(--color-text)]">
                   B.S. Data Analytics — Computational Analytics
                 </p>
-                <p className="text-xs text-[#555] mt-1">
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">
                   The Ohio State University · 2022–2026
                 </p>
               </div>

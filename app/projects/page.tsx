@@ -1,4 +1,5 @@
 import { Footer } from "../components/Footer";
+import { Tag } from "../components/ui/Tag";
 
 type Project = {
   title: string;
@@ -93,70 +94,60 @@ const projects: Project[] = [
   },
 ];
 
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded px-2 py-0.5 text-[11px] font-mono text-[#444] bg-[#111] border border-[#1c1c1c]">
-      {children}
-    </span>
-  );
-}
-
 export default function Projects() {
   return (
     <>
-      <main className="mx-auto max-w-3xl px-6 pb-0 pt-28">
+      <main className="container-main section-padding pb-0 pt-28">
         <header className="mb-14">
-          <span className="font-mono text-[11px] text-[#444] tracking-widest uppercase">
-            // selected work
-          </span>
-          <h1 className="mt-4 text-3xl font-light tracking-tight text-[#e2e2e2]">
+          <span className="section-label">{"// selected work"}</span>
+          <h1 className="mt-4 text-3xl font-light tracking-tight text-[var(--color-text)] md:text-4xl">
             Projects
           </h1>
-          <p className="mt-3 text-sm text-[#555] leading-relaxed max-w-md">
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-[var(--color-text-secondary)]">
             A collection of work spanning data infrastructure, applied ML, and
             operational systems. I care about problem framing, tradeoffs under
             constraints, and measurable impact — not just tooling.
           </p>
         </header>
 
-        <div className="space-y-3">
+        <div className="grid gap-4 md:grid-cols-2">
           {projects.map((p) => (
             <article
               key={p.title}
-              className="rounded-xl border border-[#171717] bg-[#0d0d0d] p-6 hover:border-[#242424] transition-colors duration-300"
+              className="glass glass-hover h-full rounded-2xl p-6"
             >
-              <div className="flex items-start justify-between gap-4 mb-1">
+              <div className="mb-1 flex items-start justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="font-mono text-[10px] text-[#333] tracking-widest uppercase">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="rounded-md bg-[var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-[var(--color-text-subtle)]">
                       {p.category}
                     </span>
-                    <span className="text-[#2a2a2a]">·</span>
-                    <span className="font-mono text-[10px] text-[#333]">
+                    <span className="font-mono text-[10px] text-[var(--color-text-subtle)]">
                       {p.year}
                     </span>
-                    <span className="text-[#2a2a2a]">·</span>
-                    <span className="font-mono text-[10px] text-[#333]">
-                      {p.context}
+                    <span className="font-mono text-[10px] text-[var(--color-text-subtle)]">
+                      · {p.context}
                     </span>
                   </div>
-                  <h2 className="font-medium text-[#d0d0d0] leading-snug">
+                  <h2 className="font-medium leading-snug text-[var(--color-text)]">
                     {p.title}
                   </h2>
-                  <p className="text-xs text-[#555] mt-0.5">{p.org}</p>
+                  <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+                    {p.org}
+                  </p>
                 </div>
               </div>
 
-              <p className="mt-4 text-sm text-[#5a5a5a] leading-relaxed">
+              <p className="mt-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
                 {p.description}
               </p>
 
               {p.impact && (
-                <div className="mt-4 rounded-lg border border-[#1a1a1a] bg-[#0a0a0a] px-4 py-3">
-                  <p className="text-[11px] text-[#333] font-mono mb-1">
+                <div className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-4 py-3">
+                  <p className="mb-1 font-mono text-[11px] text-[var(--color-text-subtle)]">
                     → impact
                   </p>
-                  <p className="text-xs text-[#4a4a4a] leading-relaxed">
+                  <p className="text-xs leading-relaxed text-[var(--color-text-muted)]">
                     {p.impact}
                   </p>
                 </div>

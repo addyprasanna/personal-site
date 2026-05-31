@@ -3,35 +3,222 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-bg: #060608;
+  --color-bg-elevated: #0a0a0d;
+  --color-bg-card: #0d0d11;
+  --color-border: #1a1a20;
+  --color-border-hover: #2a2a34;
+  --color-text: #ececf1;
+  --color-text-secondary: #9898a4;
+  --color-text-muted: #5c5c68;
+  --color-text-subtle: #3a3a44;
+  --color-accent: #22d3ee;
+  --color-accent-warm: #f59e0b;
+  --color-accent-green: #22c55e;
 }
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
-  background: #080808;
-  color: #e2e2e2;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background: rgba(34, 211, 238, 0.15);
+  background: rgba(34, 211, 238, 0.18);
   color: #22d3ee;
 }
 
+/* ── Focus visibility (UX guideline: visible focus rings, High) ── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Don't show focus rings on mouse click, only keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Skip link (UX guideline: skip to content, Medium) ── */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  z-index: 100;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-accent);
+  background: var(--color-bg-elevated);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-accent);
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #080808;
+  background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #222;
-  border-radius: 2px;
+  background: #222228;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: #333340;
+}
+
+/* ── Layout utilities ── */
+.section-padding {
+  @apply px-6 py-24 md:py-32;
+}
+
+.container-main {
+  @apply mx-auto w-full max-w-6xl;
+}
+
+/* ── Background patterns ── */
+.dot-grid {
+  background-image: radial-gradient(circle, #1c1c24 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(
+    ellipse 85% 75% at 50% 40%,
+    black 0%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 85% 75% at 50% 40%,
+    black 0%,
+    transparent 100%
+  );
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    black 0%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    black 0%,
+    transparent 100%
+  );
+}
+
+/* ── Glass & cards ── */
+.glass {
+  background: rgba(13, 13, 17, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
+}
+
+.glass-hover {
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.glass-hover:hover {
+  border-color: var(--color-border-hover);
+  background: rgba(15, 15, 20, 0.85);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.card-base {
+  @apply rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] transition-colors duration-200;
+}
+
+.card-interactive {
+  @apply cursor-pointer;
+}
+
+.card-interactive:hover {
+  border-color: var(--color-border-hover);
+}
+
+/* ── Gradient accents ── */
+.gradient-text {
+  background: linear-gradient(135deg, #22d3ee 0%, #67e8f9 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 211, 238, 0.35),
+    rgba(245, 158, 11, 0.15),
+    rgba(34, 211, 238, 0.08)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.glow-cyan {
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.08);
+}
+
+.glow-cyan-hover:hover {
+  box-shadow: 0 0 48px rgba(34, 211, 238, 0.12);
+}
+
+/* ── Section labels ── */
+.section-label {
+  @apply font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--color-text-muted)];
+}
+
+/* ── Timeline ── */
+.timeline-line {
+  @apply absolute left-[17px] top-3 bottom-3 w-px bg-gradient-to-b from-[var(--color-border)] via-[var(--color-accent)]/20 to-transparent;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

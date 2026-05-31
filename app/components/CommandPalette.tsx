@@ -160,7 +160,7 @@ export function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm"
             onClick={close}
           />
 
@@ -171,7 +171,7 @@ export function CommandPalette() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: -6 }}
             transition={{ duration: 0.18, ease }}
-            className="fixed left-1/2 top-[18vh] z-[201] w-full max-w-[480px] -translate-x-1/2 overflow-hidden rounded-xl border border-[#222] bg-[#0c0c0c] shadow-[0_24px_80px_rgba(0,0,0,0.8)]"
+            className="fixed left-1/2 top-[18vh] z-[60] w-full max-w-[480px] -translate-x-1/2 overflow-hidden rounded-xl border border-[#222] bg-[#0c0c0c] shadow-[0_24px_80px_rgba(0,0,0,0.8)]"
           >
             {/* Search row */}
             <div className="flex items-center gap-3 border-b border-[#181818] px-4 py-3">
@@ -237,7 +237,7 @@ export function CommandPalette() {
                 <span className="font-mono text-[10px] text-[#272727]">↵ select</span>
                 <span className="font-mono text-[10px] text-[#272727]">esc close</span>
               </div>
-              <span className="font-mono text-[10px] text-[#222]">// try pressing K</span>
+              <span className="font-mono text-[10px] text-[#222]">{"// try pressing K"}</span>
             </div>
           </motion.div>
         </>
