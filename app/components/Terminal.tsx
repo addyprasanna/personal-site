@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BorderBeam } from "./ui/BorderBeam";
+import { site } from "@/app/data/site";
+import { experiences } from "@/app/data/experience";
 
 type Line =
   | { kind: "input"; text: string }
@@ -33,14 +36,13 @@ export function Terminal() {
   const [value, setValue] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [, setHistIdx] = useState(-1);
+  const [focused, setFocused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [lines]);
 
   const print = (out: Line[]) => setLines((prev) => [...prev, ...out]);
@@ -56,19 +58,12 @@ export function Terminal() {
     switch (cmd) {
       case "help":
       case "?":
-        print(HELP.map((text) => ({ kind: "output", text } as Line)));
+        print(HELP.map((text) => ({ kind: "output", text }) as Line));
         break;
       case "whoami":
         print([
-          {
-            kind: "output",
-            text: "advaith prasanna — product engineer @ Kaya AI.",
-            tone: "accent",
-          },
-          {
-            kind: "output",
-            text: "I build AI-native operational systems for construction & supply chain.",
-          },
+          { kind: "output", text: "advaith prasanna — product engineer @ Kaya AI.", tone: "accent" },
+          { kind: "output", text: "I build AI-native operational systems for construction & supply chain." },
         ]);
         break;
       case "stack":
@@ -85,12 +80,16 @@ export function Terminal() {
         setTimeout(() => router.push("/projects"), 450);
         break;
       case "experience":
-        print([
-          { kind: "output", text: "Kaya AI            Product Engineer        2025 — now" },
-          { kind: "output", text: "Rockwell (Kalypso) Data Science Intern      Summer 2025" },
-          { kind: "output", text: "NetJets            Data Analytics Intern    Summer 2024" },
-          { kind: "output", text: "Ohio State Athl.   Analytics Intern         Summer 2023" },
-        ]);
+        print(
+          experiences.map(
+            (e) =>
+              ({
+                kind: "output",
+                text: `▸ ${e.title} @ ${e.org}  (${e.period})`,
+                tone: e.current ? "accent" : "default",
+              }) as Line,
+          ),
+        );
         break;
       case "now":
         print([{ kind: "output", text: "→ routing to /now", tone: "ok" }]);
@@ -103,34 +102,28 @@ export function Terminal() {
       case "contact":
       case "email":
         print([
-          { kind: "output", text: "advaith.prasanna@gmail.com", tone: "accent" },
+          { kind: "output", text: site.email, tone: "accent" },
           { kind: "output", text: "copied to clipboard ✓", tone: "ok" },
         ]);
-        navigator.clipboard?.writeText("advaith.prasanna@gmail.com").catch(() => {});
+        navigator.clipboard?.writeText(site.email).catch(() => {});
         break;
       case "github":
-        print([{ kind: "output", text: "→ opening github.com/addyprasanna", tone: "ok" }]);
-        window.open("https://github.com/addyprasanna", "_blank");
+        print([{ kind: "output", text: `→ opening github.com/${site.githubHandle}`, tone: "ok" }]);
+        window.open(site.github, "_blank", "noopener,noreferrer");
         break;
       case "linkedin":
         print([{ kind: "output", text: "→ opening linkedin", tone: "ok" }]);
-        window.open("https://www.linkedin.com/in/advaith-prasanna/", "_blank");
+        window.open(site.linkedin, "_blank", "noopener,noreferrer");
         break;
       case "fencing":
         print([
-          {
-            kind: "output",
-            text: "NCAA Division I épée @ Ohio State — 4 varsity seasons.",
-            tone: "accent",
-          },
+          { kind: "output", text: "NCAA Division I épée @ Ohio State — 4 varsity seasons.", tone: "accent" },
           { kind: "output", text: "the competitor's mindset doesn't stay on the strip." },
         ]);
         break;
       case "sudo":
       case "sudo su":
-        print([
-          { kind: "output", text: "nice try. you already have everything you need.", tone: "warn" },
-        ]);
+        print([{ kind: "output", text: "nice try. you already have everything you need.", tone: "warn" }]);
         break;
       case "clear":
       case "cls":
@@ -140,13 +133,7 @@ export function Terminal() {
         print([{ kind: "output", text: "home  work  experience  about  now  contact" }]);
         break;
       default:
-        print([
-          {
-            kind: "output",
-            text: `command not found: ${cmd}. type 'help'.`,
-            tone: "warn",
-          },
-        ]);
+        print([{ kind: "output", text: `command not found: ${cmd}. type 'help'.`, tone: "warn" }]);
     }
   };
 
@@ -165,7 +152,7 @@ export function Terminal() {
       e.preventDefault();
       setHistIdx((i) => {
         const next = Math.max(i - 1, -1);
-        setValue(next === -1 ? "" : history[next] ?? "");
+        setValue(next === -1 ? "" : (history[next] ?? ""));
         return next;
       });
     }
@@ -186,11 +173,14 @@ export function Terminal() {
 
   return (
     <div
-      className="gradient-border glow-cyan rounded-2xl"
+      className="relative rounded-2xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8),0_0_60px_-20px_rgba(34,211,238,0.25)]"
       onClick={() => inputRef.current?.focus()}
     >
-      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[#040406]">
-        <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-4 py-3">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[#050508]/95 backdrop-blur-xl">
+        <BorderBeam size={90} duration={9} colorFrom="#22d3ee" colorTo="#a78bfa" />
+        <BorderBeam size={90} duration={9} delay={4.5} colorFrom="#f59e0b" colorTo="#22d3ee" />
+
+        <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[rgba(255,255,255,0.02)] px-4 py-3">
           <div className="flex gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
@@ -199,10 +189,17 @@ export function Terminal() {
           <span className="ml-2 font-mono text-[10px] text-[var(--color-text-subtle)]">
             guest@advaith.dev — interactive
           </span>
+          <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] text-[var(--color-text-subtle)]">
+            <span
+              className={`h-1.5 w-1.5 rounded-full transition-colors ${focused ? "bg-[var(--color-accent-green)] shadow-[0_0_6px_var(--color-accent-green)]" : "bg-[var(--color-text-subtle)]"}`}
+            />
+            {focused ? "live" : "idle"}
+          </span>
         </div>
 
         <div
           ref={scrollRef}
+          data-lenis-prevent
           className="h-[300px] space-y-1 overflow-y-auto px-5 py-4 font-mono text-[12px] leading-relaxed"
         >
           {lines.map((line, i) =>
@@ -212,10 +209,7 @@ export function Terminal() {
                 <span className="text-[var(--color-text)]">{line.text}</span>
               </div>
             ) : (
-              <div
-                key={i}
-                className={`whitespace-pre-wrap ${toneClass(line.tone)}`}
-              >
+              <div key={i} className={`whitespace-pre-wrap ${toneClass(line.tone)}`}>
                 {line.text}
               </div>
             ),
@@ -228,6 +222,8 @@ export function Terminal() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={onKeyDown}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               spellCheck={false}
               autoComplete="off"
               aria-label="Interactive terminal input"

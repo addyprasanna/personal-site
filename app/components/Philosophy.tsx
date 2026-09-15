@@ -1,90 +1,112 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { FadeIn } from "./ui/FadeIn";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { SectionHeader } from "./ui/SectionHeader";
-
-const principles = [
-  {
-    n: "01",
-    title: "Systems over features",
-    body: "A great feature built on a broken system is technical debt with a UI. I design for the whole — data models, state, API contracts, and UX together — because abstractions that don't compose eventually collapse.",
-    accent: "cyan" as const,
-  },
-  {
-    n: "02",
-    title: "Clarity is the product",
-    body: "My job isn't to build software. It's to make complex operations legible. If a stakeholder can't act on what I shipped, something failed upstream — in the design, the framing, or the data model.",
-    accent: "warm" as const,
-  },
-  {
-    n: "03",
-    title: "Customer proximity compounds",
-    body: "The engineers who talk to customers write better code. I stay close to the problem by staying close to the people who have it. A single conversation often surfaces what months of spec work misses.",
-    accent: "green" as const,
-  },
-  {
-    n: "04",
-    title: "Ship early, stay curious",
-    body: "Working software in front of real users beats perfect software in a PR. Feedback is the spec. Speed is a feature. But you only earn the right to iterate fast by being honest about what you don't know.",
-    accent: "cyan" as const,
-  },
-];
-
-const accentStyles = {
-  cyan: {
-    dot: "bg-[var(--color-accent)] shadow-[0_0_8px_var(--color-accent)]",
-    num: "text-[var(--color-accent)]/40",
-  },
-  warm: {
-    dot: "bg-[var(--color-accent-warm)] shadow-[0_0_8px_var(--color-accent-warm)]",
-    num: "text-[var(--color-accent-warm)]/40",
-  },
-  green: {
-    dot: "bg-[var(--color-accent-green)] shadow-[0_0_8px_var(--color-accent-green)]",
-    num: "text-[var(--color-accent-green)]/40",
-  },
-};
+import { BlurFade } from "./ui/BlurFade";
+import { SpotlightCard } from "./ui/SpotlightCard";
+import { cn, EASE, hexToRgba } from "@/app/lib/utils";
+import { accentHex, principles } from "@/app/data/principles";
 
 export function Philosophy() {
-  return (
-    <section className="section-padding border-t border-[var(--color-border)]">
-      <div className="container-main">
-        <SectionHeader
-          label="// how I think"
-          title="Technical philosophy"
-        />
+  const [active, setActive] = useState(0);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {principles.map((p, i) => {
-            const style = accentStyles[p.accent];
-            return (
-              <FadeIn key={p.n} delay={i * 0.07}>
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.index));
+        }
+      },
+      { rootMargin: "-42% 0px -42% 0px", threshold: 0 },
+    );
+    itemRefs.current.forEach((el) => el && obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const current = principles[active];
+  const color = accentHex[current.accent];
+
+  return (
+    <section className="section-padding relative border-t border-[var(--color-border)]">
+      <div className="container-main">
+        <SectionHeader id="philosophy" label="// how I think" title="Technical philosophy" />
+
+        <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+          {/* Sticky numeral (desktop) */}
+          <div className="hidden lg:block">
+            <div className="sticky top-36">
+              <AnimatePresence mode="wait">
                 <motion.div
-                  whileHover={{ y: -3 }}
-                  transition={{ duration: 0.2 }}
-                  className="glass glass-hover group h-full rounded-2xl p-6"
+                  key={current.n}
+                  initial={{ opacity: 0, y: 18, filter: "blur(8px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -18, filter: "blur(8px)" }}
+                  transition={{ duration: 0.4, ease: EASE }}
                 >
-                  <div className="mb-5 flex items-center gap-3">
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full ${style.dot}`}
-                    />
-                    <span
-                      className={`font-mono text-[11px] ${style.num}`}
-                    >
-                      {p.n}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-medium leading-snug text-[var(--color-text)]">
-                    {p.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-muted)]">
-                    {p.body}
-                  </p>
+                  <span
+                    className="display block font-mono text-[10rem] leading-[0.9] text-ghost"
+                    style={{ WebkitTextStrokeColor: hexToRgba(color, 0.35) }}
+                    aria-hidden="true"
+                  >
+                    {current.n}
+                  </span>
+                  <h3 className="display mt-4 text-3xl font-medium text-[var(--color-text)]">{current.title}</h3>
                 </motion.div>
-              </FadeIn>
-            );
-          })}
+              </AnimatePresence>
+
+              <div className="mt-10 flex items-center gap-2" aria-hidden="true">
+                {principles.map((p, i) => (
+                  <span
+                    key={p.n}
+                    className="h-1 rounded-full transition-all duration-500"
+                    style={{
+                      width: i === active ? 32 : 12,
+                      background: i === active ? accentHex[p.accent] : "var(--color-border-hover)",
+                      boxShadow: i === active ? `0 0 10px ${accentHex[p.accent]}` : "none",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Scrolling principles */}
+          <div className="space-y-4 lg:space-y-8">
+            {principles.map((item, i) => {
+              const c = accentHex[item.accent];
+              return (
+                <div
+                  key={item.n}
+                  ref={(el) => {
+                    itemRefs.current[i] = el;
+                  }}
+                  data-index={i}
+                  className="flex items-center lg:min-h-[44vh]"
+                >
+                  <BlurFade className="w-full" delay={i * 0.05}>
+                    <SpotlightCard
+                      glow={hexToRgba(c, 0.12)}
+                      className={cn(
+                        "w-full p-6 transition-opacity duration-500 md:p-8",
+                        i === active ? "lg:opacity-100" : "lg:opacity-40 lg:hover:opacity-80",
+                      )}
+                    >
+                      <div className="mb-4 flex items-center gap-3">
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ background: c, boxShadow: `0 0 8px ${c}` }} />
+                        <span className="font-mono text-[11px]" style={{ color: c }}>
+                          {item.n}
+                        </span>
+                      </div>
+                      <h3 className="display text-xl font-medium leading-snug text-[var(--color-text)]">{item.title}</h3>
+                      <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--color-text-secondary)]">{item.body}</p>
+                    </SpotlightCard>
+                  </BlurFade>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

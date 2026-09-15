@@ -1,7 +1,7 @@
 import { Hero } from "./components/Hero";
 import { CurrentWork } from "./components/CurrentWork";
-import { TechStack } from "./components/TechStack";
 import { SelectedWork } from "./components/SelectedWork";
+import { TechStack } from "./components/TechStack";
 import { Philosophy } from "./components/Philosophy";
 import { Experience } from "./components/Experience";
 import { Footer } from "./components/Footer";
@@ -11,8 +11,8 @@ export default function Home() {
     <main>
       <Hero />
       <CurrentWork />
-      <TechStack />
       <SelectedWork />
+      <TechStack />
       <Philosophy />
       <Experience />
       <Footer />

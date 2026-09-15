@@ -2,94 +2,72 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { NumberTicker } from "./ui/NumberTicker";
+import { BorderBeam } from "./ui/BorderBeam";
+import { EASE } from "@/app/lib/utils";
 
-const ease = [0.21, 0.47, 0.32, 0.98] as const;
-
-// ── CountUp ──────────────────────────────────────────────────────────────────
-function CountUp({ to, duration = 700 }: { to: number; duration?: number }) {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    const steps = 40;
-    const inc = to / steps;
-    let cur = 0;
-    const id = setInterval(() => {
-      cur += inc;
-      if (cur >= to) {
-        setN(to);
-        clearInterval(id);
-      } else {
-        setN(Math.floor(cur));
-      }
-    }, duration / steps);
-    return () => clearInterval(id);
-  }, [to, duration]);
-  return <>{n}</>;
-}
-
-// ── Kaya Dashboard ────────────────────────────────────────────────────────────
+// ── Kaya Dashboard (simulated) ────────────────────────────────────────────────
 function KayaDashboard({ onClose }: { onClose: () => void }) {
   const metrics = [
-    { label: "data sources",     value: 12, unit: "connected" },
-    { label: "workflow nodes",   value: 847, unit: "mapped" },
-    { label: "KPIs tracked",     value: 47, unit: "active" },
-    { label: "analyst queries",  value: 3,  unit: "processing" },
+    { label: "data sources", value: 12, unit: "connected" },
+    { label: "workflow nodes", value: 847, unit: "mapped" },
+    { label: "KPIs tracked", value: 47, unit: "active" },
+    { label: "analyst queries", value: 3, unit: "processing" },
   ];
 
   const systems = [
-    { name: "Magellan", status: "online",      color: "#22d3ee" },
-    { name: "Amber",    status: "processing",  color: "#f59e0b" },
-    { name: "Pipeline", status: "nominal",     color: "#16a34a" },
+    { name: "Magellan", status: "online", color: "#22d3ee" },
+    { name: "Amber", status: "processing", color: "#f59e0b" },
+    { name: "Pipeline", status: "nominal", color: "#22c55e" },
   ];
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96, y: -12 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, y: -8 }}
-      transition={{ duration: 0.22, ease }}
-      className="fixed left-1/2 top-[12vh] z-[70] w-full max-w-sm -translate-x-1/2 overflow-hidden rounded-xl border border-[#1e1e1e] bg-[#080808] shadow-[0_32px_96px_rgba(0,0,0,0.9)]"
+      initial={{ opacity: 0, scale: 0.96, y: -12, filter: "blur(6px)" }}
+      animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.96, y: -8, filter: "blur(6px)" }}
+      transition={{ duration: 0.22, ease: EASE }}
+      role="dialog"
+      aria-label="Kaya AI ops dashboard (simulated)"
+      className="fixed left-1/2 top-[12vh] z-[70] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 overflow-hidden rounded-2xl border border-[var(--color-border-hover)] bg-[rgba(8,8,12,0.92)] shadow-[0_32px_96px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#141414] bg-[#0a0a0a] px-4 py-3">
+      <BorderBeam size={70} duration={7} />
+      <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[rgba(255,255,255,0.02)] px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#22d3ee] shadow-[0_0_6px_#22d3ee]" />
-          <span className="font-mono text-[11px] text-[#22d3ee] tracking-wider uppercase">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_6px_var(--color-accent)]" />
+          <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-accent)]">
             Kaya AI · Ops Dashboard
           </span>
         </div>
-        <span className="font-mono text-[10px] text-[#2a2a2a]">live</span>
+        <span className="rounded border border-[var(--color-border)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[var(--color-text-subtle)]">
+          simulated
+        </span>
       </div>
 
-      {/* Metrics */}
-      <div className="px-4 py-4 space-y-3">
-        {metrics.map((m) => (
+      <div className="space-y-3 px-4 py-4">
+        {metrics.map((m, i) => (
           <div key={m.label} className="flex items-center justify-between">
-            <span className="font-mono text-[11px] text-[#444]">{m.label}</span>
+            <span className="font-mono text-[11px] text-[var(--color-text-muted)]">{m.label}</span>
             <div className="flex items-baseline gap-1.5">
-              <span className="font-mono text-sm text-[#c8c8c8]">
-                <CountUp key={m.value} to={m.value} />
+              <span className="font-mono text-sm text-[var(--color-text)]">
+                <NumberTicker value={m.value} delay={i * 0.08} />
               </span>
-              <span className="font-mono text-[10px] text-[#333]">{m.unit}</span>
+              <span className="font-mono text-[10px] text-[var(--color-text-subtle)]">{m.unit}</span>
             </div>
           </div>
         ))}
-
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[11px] text-[#444]">last sync</span>
-          <span className="font-mono text-[11px] text-[#555]">just now</span>
+          <span className="font-mono text-[11px] text-[var(--color-text-muted)]">last sync</span>
+          <span className="font-mono text-[11px] text-[var(--color-text-secondary)]">just now</span>
         </div>
       </div>
 
-      {/* Systems */}
-      <div className="border-t border-[#141414] px-4 py-3 space-y-2">
+      <div className="space-y-2 border-t border-[var(--color-border)] px-4 py-3">
         {systems.map((s) => (
           <div key={s.name} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: s.color, boxShadow: `0 0 4px ${s.color}80` }}
-              />
-              <span className="font-mono text-[11px] text-[#555]">{s.name}</span>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: s.color, boxShadow: `0 0 6px ${s.color}80` }} />
+              <span className="font-mono text-[11px] text-[var(--color-text-secondary)]">{s.name}</span>
             </div>
             <span className="font-mono text-[10px]" style={{ color: s.color }}>
               {s.status}
@@ -98,23 +76,18 @@ function KayaDashboard({ onClose }: { onClose: () => void }) {
         ))}
       </div>
 
-      {/* Flow text */}
-      <div className="border-t border-[#141414] px-4 py-3">
-        <p className="font-mono text-[10px] text-[#2a2a2a] leading-relaxed">
+      <div className="border-t border-[var(--color-border)] px-4 py-3">
+        <p className="font-mono text-[10px] leading-relaxed text-[var(--color-text-subtle)]">
           messy workflows → structured data products
-          <br />
-          → operational intelligence
+          <br />→ operational intelligence
         </p>
       </div>
 
-      {/* Footer */}
-      <div className="border-t border-[#141414] px-4 py-2 flex items-center justify-between">
-        <span className="font-mono text-[10px] text-[#222]">
-          advaith.prasanna / kaya-ai
-        </span>
+      <div className="flex items-center justify-between border-t border-[var(--color-border)] px-4 py-2">
+        <span className="font-mono text-[10px] text-[var(--color-text-subtle)]">advaith.prasanna / kaya-ai</span>
         <button
           onClick={onClose}
-          className="font-mono text-[10px] text-[#333] hover:text-[#666] transition-colors"
+          className="font-mono text-[10px] text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
         >
           [K] close
         </button>
@@ -126,7 +99,7 @@ function KayaDashboard({ onClose }: { onClose: () => void }) {
 // ── Fencing Overlay ───────────────────────────────────────────────────────────
 function FencingOverlay({ onClose }: { onClose: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onClose, 3200);
+    const t = setTimeout(onClose, 3400);
     return () => clearTimeout(t);
   }, [onClose]);
 
@@ -136,38 +109,46 @@ function FencingOverlay({ onClose }: { onClose: () => void }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/75 backdrop-blur-md"
       onClick={onClose}
+      role="dialog"
+      aria-label="Fencing"
     >
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         exit={{ opacity: 0, y: 8 }}
-        transition={{ duration: 0.35, ease }}
-        className="text-center select-none"
+        transition={{ duration: 0.4, ease: EASE }}
+        className="select-none px-6 text-center"
       >
-        <p className="font-mono text-[11px] text-[#444] tracking-widest uppercase mb-6">
+        <p className="mb-6 font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--color-text-muted)]">
           The Ohio State University
         </p>
-        <p className="text-5xl mb-5 opacity-60">⚔</p>
-        <h2 className="text-xl font-light text-[#e2e2e2] tracking-wide mb-2">
+        <motion.p
+          className="mb-5 text-6xl"
+          initial={{ rotate: -20, scale: 0.8 }}
+          animate={{ rotate: 0, scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 14, delay: 0.1 }}
+          aria-hidden="true"
+        >
+          ⚔
+        </motion.p>
+        <h2 className="display mb-2 text-3xl font-medium tracking-wide text-[var(--color-text)]">
           NCAA Division I Fencing
         </h2>
-        <p className="font-mono text-sm text-[#555] mb-8">
-          Varsity Épée · 2022 — 2026
-        </p>
-        <p className="font-mono text-xs text-[#333] italic max-w-xs">
+        <p className="mb-8 font-mono text-sm text-[var(--color-text-secondary)]">Varsity Épée · 2022 — 2026</p>
+        <p className="mx-auto max-w-xs font-mono text-xs italic text-[var(--color-text-muted)]">
           &ldquo;The competitor&apos;s mindset doesn&apos;t stay on the strip.&rdquo;
         </p>
 
         <motion.div
-          className="mt-10 mx-auto h-px bg-[#222] max-w-[120px]"
+          className="mx-auto mt-10 h-px max-w-[140px] bg-[var(--color-accent)]"
           initial={{ scaleX: 1 }}
           animate={{ scaleX: 0 }}
-          transition={{ duration: 3.2, ease: "linear" }}
-          style={{ originX: "left" }}
+          transition={{ duration: 3.4, ease: "linear" }}
+          style={{ originX: 0 }}
         />
-        <p className="mt-2 font-mono text-[10px] text-[#2a2a2a]">auto-closing</p>
+        <p className="mt-2 font-mono text-[10px] text-[var(--color-text-subtle)]">auto-closing</p>
       </motion.div>
     </motion.div>
   );
@@ -179,8 +160,7 @@ export function EasterEggs() {
   const [fencingOpen, setFencingOpen] = useState(false);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      // Don't fire while typing or palette is open
+    const onKey = (e: KeyboardEvent) => {
       const el = document.activeElement;
       if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) return;
       if (document.querySelector("[data-command-palette]")) return;
@@ -201,18 +181,28 @@ export function EasterEggs() {
         setFencingOpen(false);
       }
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    const onKaya = () => {
+      setFencingOpen(false);
+      setKayaOpen(true);
+    };
+    const onFencing = () => {
+      setKayaOpen(false);
+      setFencingOpen(true);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("egg:kaya", onKaya);
+    window.addEventListener("egg:fencing", onFencing);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("egg:kaya", onKaya);
+      window.removeEventListener("egg:fencing", onFencing);
+    };
   }, []);
 
   return (
     <AnimatePresence>
-      {kayaOpen && (
-        <KayaDashboard key="kaya" onClose={() => setKayaOpen(false)} />
-      )}
-      {fencingOpen && (
-        <FencingOverlay key="fencing" onClose={() => setFencingOpen(false)} />
-      )}
+      {kayaOpen && <KayaDashboard key="kaya" onClose={() => setKayaOpen(false)} />}
+      {fencingOpen && <FencingOverlay key="fencing" onClose={() => setFencingOpen(false)} />}
     </AnimatePresence>
   );
 }

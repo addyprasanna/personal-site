@@ -1,158 +1,118 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { Command } from "cmdk";
+import { AnimatePresence, motion } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useLenis } from "lenis/react";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { HiOutlineMail } from "react-icons/hi";
+import { EASE } from "@/app/lib/utils";
+import { site } from "@/app/data/site";
 
-type Cmd = {
-  id: string;
-  label: string;
-  hint?: string;
-  group: string;
-  action: () => void;
-};
-
-const ease = [0.21, 0.47, 0.32, 0.98] as const;
-
-// Global open state accessible to other components
 let _setOpen: ((v: boolean) => void) | null = null;
 export function openCommandPalette() {
   _setOpen?.(true);
 }
 
+function Hint({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="ml-auto shrink-0 font-mono text-[10px] text-[var(--color-text-subtle)]">
+      {children}
+    </span>
+  );
+}
+
+function Kbd({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="rounded border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-text-subtle)]">
+      {children}
+    </kbd>
+  );
+}
+
+const sections = [
+  { id: "building", label: "Currently building" },
+  { id: "work", label: "Selected work" },
+  { id: "stack", label: "Technical toolkit" },
+  { id: "philosophy", label: "Technical philosophy" },
+  { id: "experience", label: "Experience" },
+  { id: "contact", label: "Get in touch" },
+];
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [cursor, setCursor] = useState(0);
   const [copied, setCopied] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const lenis = useLenis();
 
   _setOpen = setOpen;
 
-  const close = useCallback(() => {
-    setOpen(false);
-    setQuery("");
-    setCursor(0);
-  }, []);
-
-  const commands: Cmd[] = [
-    {
-      id: "home",
-      label: "Home",
-      group: "Navigate",
-      action: () => { router.push("/"); close(); },
-    },
-    {
-      id: "work",
-      label: "Work",
-      group: "Navigate",
-      action: () => { router.push("/projects"); close(); },
-    },
-    {
-      id: "now",
-      label: "Now",
-      group: "Navigate",
-      action: () => { router.push("/now"); close(); },
-    },
-    {
-      id: "about",
-      label: "About",
-      group: "Navigate",
-      action: () => { router.push("/about"); close(); },
-    },
-    {
-      id: "email",
-      label: copied ? "Copied!" : "Copy email",
-      hint: "advaith.prasanna@gmail.com",
-      group: "Contact",
-      action: () => {
-        navigator.clipboard.writeText("advaith.prasanna@gmail.com");
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      },
-    },
-    {
-      id: "github",
-      label: "GitHub",
-      hint: "addyprasanna",
-      group: "Contact",
-      action: () => {
-        window.open("https://github.com/addyprasanna", "_blank");
-        close();
-      },
-    },
-    {
-      id: "linkedin",
-      label: "LinkedIn",
-      hint: "advaith-prasanna",
-      group: "Contact",
-      action: () => {
-        window.open("https://www.linkedin.com/in/advaith-prasanna/", "_blank");
-        close();
-      },
-    },
-  ];
-
-  const filtered = query.trim()
-    ? commands.filter(
-        (c) =>
-          c.label.toLowerCase().includes(query.toLowerCase()) ||
-          c.hint?.toLowerCase().includes(query.toLowerCase()) ||
-          c.group.toLowerCase().includes(query.toLowerCase())
-      )
-    : commands;
-
-  const grouped = filtered.reduce<Record<string, Cmd[]>>((acc, cmd) => {
-    acc[cmd.group] ??= [];
-    acc[cmd.group].push(cmd);
-    return acc;
-  }, {});
-
-  // Global keyboard: open with ⌘K / Ctrl+K
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((v) => !v);
-        if (!open) { setQuery(""); setCursor(0); }
       }
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [open, close]);
+  }, []);
 
-  // Focus input when opened
-  useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 40);
-  }, [open]);
+  const close = () => setOpen(false);
 
-  // Arrow key + Enter navigation
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setCursor((c) => Math.min(c + 1, filtered.length - 1));
-      }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setCursor((c) => Math.max(c - 1, 0));
-      }
-      if (e.key === "Enter") {
-        filtered[cursor]?.action();
-      }
+  const go = (href: string) => {
+    close();
+    router.push(href);
+  };
+
+  const jump = (id: string) => {
+    close();
+    const scrollTo = () => {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      requestAnimationFrame(() => {
+        if (lenis) {
+          // Refresh Lenis' cached page height first — after a route change it may still
+          // reflect the previous (shorter) page and would clamp the target.
+          lenis.resize();
+          lenis.scrollTo(el, { offset: -100, duration: 1.4 });
+        } else {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+      return true;
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [open, filtered, cursor]);
+    if (pathname !== "/") {
+      router.push("/");
+      let tries = 0;
+      const poll = () => {
+        if (scrollTo() || tries++ > 30) return;
+        setTimeout(poll, 100);
+      };
+      setTimeout(poll, 250);
+    } else {
+      scrollTo();
+    }
+  };
+
+  const copyEmail = () => {
+    navigator.clipboard?.writeText(site.email).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
+  const egg = (name: "kaya" | "fencing") => {
+    close();
+    setTimeout(() => window.dispatchEvent(new CustomEvent(`egg:${name}`)), 120);
+  };
 
   return (
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             data-command-palette
             key="backdrop"
@@ -160,85 +120,113 @@ export function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
             onClick={close}
           />
 
-          {/* Panel */}
           <motion.div
             key="panel"
-            initial={{ opacity: 0, scale: 0.97, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: -6 }}
-            transition={{ duration: 0.18, ease }}
-            className="fixed left-1/2 top-[18vh] z-[60] w-full max-w-[480px] -translate-x-1/2 overflow-hidden rounded-xl border border-[#222] bg-[#0c0c0c] shadow-[0_24px_80px_rgba(0,0,0,0.8)]"
+            initial={{ opacity: 0, scale: 0.97, y: -12, filter: "blur(6px)" }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.97, y: -8, filter: "blur(6px)" }}
+            transition={{ duration: 0.2, ease: EASE }}
+            role="dialog"
+            aria-label="Command palette"
+            className="fixed left-1/2 top-[14vh] z-[60] w-[calc(100%-2rem)] max-w-[560px] -translate-x-1/2 overflow-hidden rounded-2xl border border-[var(--color-border-hover)] bg-[rgba(9,9,13,0.92)] shadow-[0_40px_120px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl"
           >
-            {/* Search row */}
-            <div className="flex items-center gap-3 border-b border-[#181818] px-4 py-3">
-              <span className="shrink-0 font-mono text-sm text-[#333]">⌘</span>
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => { setQuery(e.target.value); setCursor(0); }}
-                placeholder="Search or jump to..."
-                className="flex-1 bg-transparent text-sm text-[#e2e2e2] placeholder-[#383838] outline-none"
-              />
-              {query && (
-                <button
-                  onClick={() => setQuery("")}
-                  className="shrink-0 font-mono text-[11px] text-[#383838] hover:text-[#666] transition-colors"
-                >
-                  clear
-                </button>
-              )}
-            </div>
-
-            {/* Results */}
-            <div className="max-h-72 overflow-y-auto py-1">
-              {Object.entries(grouped).map(([group, items]) => (
-                <div key={group}>
-                  <p className="px-4 pb-1 pt-3 font-mono text-[10px] text-[#2e2e2e] tracking-widest uppercase">
-                    {group}
-                  </p>
-                  {items.map((cmd) => {
-                    const idx = filtered.indexOf(cmd);
-                    return (
-                      <button
-                        key={cmd.id}
-                        onClick={cmd.action}
-                        onMouseEnter={() => setCursor(idx)}
-                        className={`flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors duration-100 ${
-                          cursor === idx ? "bg-[#141414]" : ""
-                        }`}
-                      >
-                        <span className="text-sm text-[#c0c0c0]">{cmd.label}</span>
-                        {cmd.hint && (
-                          <span className="ml-3 shrink-0 font-mono text-[11px] text-[#333]">
-                            {cmd.hint}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-
-              {filtered.length === 0 && (
-                <p className="px-4 py-8 text-center font-mono text-xs text-[#2e2e2e]">
-                  no results
-                </p>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="flex items-center justify-between border-t border-[#181818] px-4 py-2">
-              <div className="flex items-center gap-4">
-                <span className="font-mono text-[10px] text-[#272727]">↑↓ navigate</span>
-                <span className="font-mono text-[10px] text-[#272727]">↵ select</span>
-                <span className="font-mono text-[10px] text-[#272727]">esc close</span>
+            <Command label="Command palette" loop>
+              <div className="flex items-center gap-3 border-b border-[var(--color-border)] px-4 py-3.5">
+                <span className="shrink-0 font-mono text-sm text-[var(--color-accent)]">›</span>
+                <Command.Input
+                  autoFocus
+                  placeholder="Search, jump, or run…"
+                  className="flex-1 bg-transparent text-sm text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-subtle)]"
+                />
+                <Kbd>esc</Kbd>
               </div>
-              <span className="font-mono text-[10px] text-[#222]">{"// try pressing K"}</span>
-            </div>
+
+              <Command.List className="max-h-[380px] overflow-y-auto p-2">
+                <Command.Empty>no results</Command.Empty>
+
+                <Command.Group heading="Navigate">
+                  <Command.Item value="home" keywords={["index", "start"]} onSelect={() => go("/")}>
+                    Home <Hint>/</Hint>
+                  </Command.Item>
+                  <Command.Item value="work projects" onSelect={() => go("/projects")}>
+                    Work <Hint>/projects</Hint>
+                  </Command.Item>
+                  <Command.Item value="now" keywords={["status", "focus"]} onSelect={() => go("/now")}>
+                    Now <Hint>/now</Hint>
+                  </Command.Item>
+                  <Command.Item value="about" keywords={["bio", "fencing"]} onSelect={() => go("/about")}>
+                    About <Hint>/about</Hint>
+                  </Command.Item>
+                </Command.Group>
+
+                <Command.Group heading="Jump to">
+                  {sections.map((s) => (
+                    <Command.Item key={s.id} value={`jump ${s.label}`} onSelect={() => jump(s.id)}>
+                      {s.label} <Hint>#{s.id}</Hint>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+
+                <Command.Group heading="Contact">
+                  <Command.Item value="copy email" keywords={["mail", "gmail"]} onSelect={copyEmail}>
+                    <span className="flex items-center gap-2">
+                      <HiOutlineMail size={14} className="text-[var(--color-text-muted)]" />
+                      {copied ? "Copied!" : "Copy email"}
+                    </span>
+                    <Hint>{site.email}</Hint>
+                  </Command.Item>
+                  <Command.Item
+                    value="github"
+                    onSelect={() => {
+                      close();
+                      window.open(site.github, "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <FaGithub size={14} className="text-[var(--color-text-muted)]" />
+                      GitHub
+                    </span>
+                    <Hint>{site.githubHandle}</Hint>
+                  </Command.Item>
+                  <Command.Item
+                    value="linkedin"
+                    onSelect={() => {
+                      close();
+                      window.open(site.linkedin, "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <FaLinkedin size={14} className="text-[var(--color-text-muted)]" />
+                      LinkedIn
+                    </span>
+                    <Hint>{site.linkedinHandle}</Hint>
+                  </Command.Item>
+                </Command.Group>
+
+                <Command.Group heading="Easter eggs">
+                  <Command.Item value="kaya ops dashboard" keywords={["magellan", "amber"]} onSelect={() => egg("kaya")}>
+                    Kaya ops dashboard <Hint>K</Hint>
+                  </Command.Item>
+                  <Command.Item value="fencing" keywords={["epee", "ncaa", "ohio state"]} onSelect={() => egg("fencing")}>
+                    En garde <Hint>F</Hint>
+                  </Command.Item>
+                </Command.Group>
+              </Command.List>
+
+              <div className="flex items-center justify-between border-t border-[var(--color-border)] px-4 py-2.5">
+                <div className="flex items-center gap-4 font-mono text-[10px] text-[var(--color-text-subtle)]">
+                  <span>↑↓ navigate</span>
+                  <span>↵ select</span>
+                </div>
+                <span className="font-mono text-[10px] text-[var(--color-text-subtle)]">
+                  {"// cmdk"}
+                </span>
+              </div>
+            </Command>
           </motion.div>
         </>
       )}
